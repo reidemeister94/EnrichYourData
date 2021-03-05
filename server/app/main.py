@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from starlette.status import HTTP_403_FORBIDDEN
 from db.db_handler import DBHandler
+from visualization.bokeh_handler import BokehHandler
 
 
 API_KEY_NAME = "access_token"
@@ -24,23 +25,19 @@ async def get_api_key(api_key_header: str = Security(api_key_header)):
     if api_key_header in API_KEYS:
         return api_key_header
     else:
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Could not validate credentials"
-        )
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not Authorized")
 
 
 async def get_client_ip(request: Request):
     if request.client.host in ALLOWED_IP_LIST:
         return request.client.host
     else:
-        raise HTTPException(
-            status_code=HTTP_403_FORBIDDEN, detail="Could not validate credentials"
-        )
+        raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not Authorized")
 
 
 @app.get("/")
 def read_root(api_key: APIKey = Depends(get_api_key), client_ip=Depends(get_client_ip)):
-    return {"Ciao": API_KEYS[api_key], "Tuo IP": client_ip}
+    return {"Hi": API_KEYS[api_key], "Your IP": client_ip}
 
 
 @app.get("/common_words")
