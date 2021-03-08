@@ -1,11 +1,21 @@
-version: '3.3'
+version: '3.7'
 services:
   web:
-    image: eyd_server
+    build: nginx
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - api
+  api:
+    image: eyd_api
     env_file:
-      - server.env
+      - api.env
     ports: 
-      - "8000:80"
+      - "8080:8080"
     environment:
-      - USERNAME=Silvio
-      - GLOBAL_VAR=${GLOBAL_VAR}
+      - PORT=8080
+    volumes:
+      - /Users/silvio/Documents/EnrichYourData/api/app:/app
+  
+    

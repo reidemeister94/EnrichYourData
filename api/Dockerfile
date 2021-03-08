@@ -13,4 +13,4 @@ RUN poetry install --no-root --no-dev
 
 COPY ./app /app
 
-EXPOSE 8000
+EXPOSE 8080

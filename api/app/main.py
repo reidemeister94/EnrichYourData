@@ -35,6 +35,11 @@ async def get_client_ip(request: Request):
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not Authorized")
 
 
+@app.get("/test")
+def read_root(request: Request):
+    return {"Your": request.client.host}
+
+
 @app.get("/")
 def read_root(api_key: APIKey = Depends(get_api_key), client_ip=Depends(get_client_ip)):
     return {"Hi": API_KEYS[api_key], "Your IP": client_ip}
