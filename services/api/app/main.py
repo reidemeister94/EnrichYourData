@@ -40,26 +40,17 @@ async def get_client_ip(request: Request):
 
 @app.get("/test")
 def read_root(request: Request):
-    conn = MongoClient(os.environ["MONGO_URL"])
-    db = conn["tweets"]
-    coll = db["test"]
-    # print(db)
-    # print(coll)
-
-    # collection = db_handler.MONGO_CLIENT["tweets"]["test"]
-    docs = coll.find({})
-    for doc in docs:
-        print(doc)
-    # collection.insert_one(
-    #     {
-    #         "title": "test" + str(random.randint(1000000, 9999999)),
-    #         "text": "".join(
-    #             random.choices(
-    #                 string.ascii_uppercase + string.digits, k=random.randint(10, 50)
-    #             )
-    #         ),
-    #     }
-    # )
+    collection = db_handler.MONGO_CLIENT["tweets"]["test"]
+    collection.insert_one(
+        {
+            "title": "test" + str(random.randint(1000000, 9999999)),
+            "text": "".join(
+                random.choices(
+                    string.ascii_uppercase + string.digits, k=random.randint(10, 50)
+                )
+            ),
+        }
+    )
     return {"Your IP is": request.client.host}
 
 
