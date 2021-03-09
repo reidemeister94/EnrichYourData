@@ -1,7 +1,8 @@
 version: '3.8'
 
 services:
-  web:
+  api:
+    container_name: eyd_api
     build:
        context: ./services/api
     command: uvicorn main:app --reload --host 0.0.0.0 --port 5000
@@ -13,7 +14,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)"
     volumes:
-      - "./services/api/app:/home/app/web"
+      - "./services/api/app:/home/app/api"
   traefik:
     image: traefik
     ports:
@@ -23,3 +24,15 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./services/traefik/traefik.dev.toml:/etc/traefik/traefik.toml"
       - "./services/traefik/log:/var/log"
+  database:
+    image: mongo
+    container_name: eyd_db
+    env_file:
+      - db.env
+    ports:
+      - "27030:27017"
+    volumes:
+      - "./services/db/initdb.d/:/docker-entrypoint-initdb.d"
+      - "./services/db/mongo-volume:/data/db"
+      - "./services/db/log:/var/log/mongodb"
+

@@ -2,7 +2,7 @@ FROM python:3.8.8-slim-buster
 
 ENV WORKDIR=/usr/src/app
 ENV USER=app
-ENV APP_HOME=/home/app/web
+ENV APP_HOME=/home/app/api
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 
 WORKDIR $WORKDIR
@@ -24,6 +24,5 @@ RUN adduser --system --group $USER
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
-# COPY ./app $APP_HOME
 RUN chown -R $USER:$USER $APP_HOME
 USER $USER
