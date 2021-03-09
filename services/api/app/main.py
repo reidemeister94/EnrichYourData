@@ -37,7 +37,7 @@ async def get_client_ip(request: Request):
 
 @app.get("/test")
 def read_root(request: Request):
-    return {"Your": request.client.host}
+    return {"Your IP is": request.client.host}
 
 
 @app.get("/")

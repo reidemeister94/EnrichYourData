@@ -24,6 +24,6 @@ RUN adduser --system --group $USER
 RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
-COPY ./app $APP_HOME
+# COPY ./app $APP_HOME
 RUN chown -R $USER:$USER $APP_HOME
 USER $USER

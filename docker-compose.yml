@@ -4,7 +4,7 @@ services:
   web:
     build:
        context: ./services/api
-    command: gunicorn main:app --bind 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker
+    command: uvicorn main:app --reload --host 0.0.0.0 --port 5000
     env_file:
       - api.env
     expose:
@@ -12,6 +12,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)"
+    volumes:
+      - "./services/api/app:/home/app/web"
   traefik:
     image: traefik
     ports:
