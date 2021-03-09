@@ -8,3 +8,5 @@ server/.DS_Store
 *.log
 
 *.env
+
+services/db/mongo-volume/
