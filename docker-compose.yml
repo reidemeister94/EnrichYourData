@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build:
-       context: ./services/api/app
+       context: ./services/api
     command: gunicorn main:app --bind 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker
     env_file:
       - api.env
