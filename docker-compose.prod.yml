@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  web:
+    container_name: api
+    build:
+       context: ./services/api
+    env_file:
+      - api.env
+    command: gunicorn main:app --bind 0.0.0.0:5000 -w 4 -k uvicorn.workers.UvicornWorker
+    expose:
+      - 5000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.rule=Host(`disinformationpolimi.me`)"
+      - "traefik.http.routers.fastapi.tls=true"
+      - "traefik.http.routers.fastapi.tls.certresolver=letsencrypt"
+  traefik:
+    container_name: traefik
+    image: traefik
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./services/traefik/traefik.prod.toml:/etc/traefik/traefik.toml"

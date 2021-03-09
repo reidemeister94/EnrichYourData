@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  web:
+    build:
+       context: ./services/api/app
+    command: gunicorn main:app --bind 0.0.0.0:5000 -k uvicorn.workers.UvicornWorker
+    env_file:
+      - api.env
+    expose:
+      - 5000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)"
+  traefik:
+    image: traefik
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./services/traefik/traefik.dev.toml:/etc/traefik/traefik.toml"
