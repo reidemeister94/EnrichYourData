@@ -9,6 +9,7 @@ insecure = true
 level = "DEBUG"
 
 [accessLog]
+  filePath = "/var/log/access.log"
 
 [providers]
   [providers.docker]
