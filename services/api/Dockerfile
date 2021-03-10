@@ -9,6 +9,7 @@ WORKDIR $WORKDIR
 
 RUN pip install --upgrade pip
 RUN apt-get update -y && apt-get install -y curl
+RUN apt-get install -y build-essential libffi-dev python-dev
 # Install Poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
     cd /usr/local/bin && \

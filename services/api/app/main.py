@@ -2,10 +2,15 @@ from typing import Optional
 import os
 import ast
 import json
-from fastapi import Security, Depends, FastAPI, HTTPException
+from fastapi import Security, Depends, FastAPI, HTTPException, Form, status
 from fastapi.security.api_key import APIKeyQuery, APIKeyCookie, APIKeyHeader, APIKey
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi_login import LoginManager  # Loginmanager Class
+from fastapi_login.exceptions import InvalidCredentialsException  # Exception class
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 from fastapi.encoders import jsonable_encoder
 from starlette.status import HTTP_403_FORBIDDEN
 from db.db_handler import DBHandler
@@ -13,6 +18,7 @@ from visualization.bokeh_handler import BokehHandler
 import random
 import string
 from pymongo import MongoClient
+import bcrypt
 
 
 API_KEY_NAME = "access_token"
@@ -21,7 +27,18 @@ ALLOWED_IP_LIST = os.environ["ALLOWED_IPS"].split(",")
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates/")
 db_handler = DBHandler()
+SECRET = os.urandom(24).hex()
+# To obtain a suitable secret key you can run | import os; print()
+
+manager = LoginManager(SECRET, tokenUrl="/auth/login", use_cookie=True)
+manager.cookie_name = "authc"
+
+# hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+# if bcrypt.checkpw(password, hashed):
+#     print("It Matches!")
 
 
 async def get_api_key(api_key_header: str = Security(api_key_header)):
@@ -57,6 +74,37 @@ def read_root(request: Request):
 @app.get("/")
 def read_root(api_key: APIKey = Depends(get_api_key), client_ip=Depends(get_client_ip)):
     return {"Hi": API_KEYS[api_key], "Your IP": client_ip}
+
+
+@manager.user_loader
+def load_user(username: str):
+    user = db_handler.check_username(username)
+    return user
+
+
+@app.get("/login", response_class=HTMLResponse)
+async def read_item(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+
+@app.post("/auth/login")
+def login(data: OAuth2PasswordRequestForm = Depends()):
+    username = data.username
+    password = str.encode(data.password)
+    user = load_user(username)
+    if not user:
+        raise InvalidCredentialsException
+    elif not bcrypt.checkpw(password, user["password"]):
+        raise InvalidCredentialsException
+    access_token = manager.create_access_token(data={"sub": username})
+    resp = RedirectResponse(url="/private", status_code=status.HTTP_302_FOUND)
+    manager.set_cookie(resp, access_token)
+    return resp
+
+
+@app.get("/private")
+def get_private_endpoint(_=Depends(manager)):
+    return "You are an authenticated user"
 
 
 @app.get("/common_words")

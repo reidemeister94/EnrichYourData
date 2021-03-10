@@ -1,3 +1,4 @@
+import collections
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import CursorNotFound, ServerSelectionTimeoutError
@@ -20,6 +21,8 @@ class DBHandler:
         self.LOGGER = self.__get_logger()
         mongourl = os.environ["MONGO_URL"]
         self.MONGO_CLIENT = MongoClient(mongourl)
+        self.db_users = os.environ["MONGO_USERS_DB"]
+        self.collection_users = os.environ["MONGO_USERS_COLLECTION"]
 
     def get_common_words(self, start_date, lang):
         if type(start_date) is str:
@@ -139,6 +142,14 @@ class DBHandler:
                 )
             )
             return None
+
+    def check_username(self, username):
+        credentials_coll = self.MONGO_CLIENT[self.db_users][self.collection_users]
+        user_db = credentials_coll.find_one({"username": username})
+        if user_db is None:
+            return None
+        else:
+            return {"password": user_db["password"]}
 
     def __get_logger(self):
         # create logger
