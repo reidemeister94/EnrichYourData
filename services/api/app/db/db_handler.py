@@ -74,11 +74,7 @@ class DBHandler:
                             "count": {"$sum": 1},
                         }
                     },
-                    {
-                        "$sort": {
-                            "_id": pymongo.ASCENDING,
-                        }
-                    },
+                    {"$sort": {"_id": pymongo.ASCENDING,}},
                 ]
             )
 
