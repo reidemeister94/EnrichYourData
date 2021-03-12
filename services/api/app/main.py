@@ -108,6 +108,19 @@ async def login_page_error(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "error": True})
 
 
+@app.post("/send_tweet")
+def update_tweet(radioLabel=Form(...), _=Depends(manager)):
+    radioLabel = int(radioLabel)
+    if radioLabel == 1:
+        return "Pro Vax"
+    elif radioLabel == 2:
+        return "No Vax"
+    elif radioLabel == 3:
+        return "Neutral"
+    else:
+        return "Out of context"
+
+
 @app.post("/auth/token")
 def login(data: OAuth2PasswordRequestForm = Depends()):
     username = data.username

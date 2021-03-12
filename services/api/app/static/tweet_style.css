@@ -31,8 +31,8 @@ td {
 }
 
 .submit_button {
-    height: 45px;
-    width: 150px;
+    height: 3em;
+    width: 25%;
     border-radius: 20px;
     font-size: 18px;
     font-weight: 900;
