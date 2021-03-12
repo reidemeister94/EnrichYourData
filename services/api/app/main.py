@@ -140,7 +140,7 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
 def get_private_endpoint(request: Request, _=Depends(manager)):
     sample_tweet = db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
         os.environ["MONGO_DATA_COLLECTION"]
-    ].find_one({"label": {"$exists": False}})
+    ].find_one({"label": {"$exists": False}, "retweeted_status": {"$exists": False}})
     return templates.TemplateResponse(
         "tweet.html",
         {
