@@ -108,17 +108,14 @@ async def login_page_error(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "error": True})
 
 
-@app.post("/send_tweet")
-def update_tweet(radio_label=Form(...), _=Depends(manager)):
-    radio_label = int(radio_label)
-    if radio_label == 1:
-        return "Pro Vax"
-    elif radio_label == 2:
-        return "No Vax"
-    elif radio_label == 3:
-        return "Neutral"
-    else:
-        return "Out of context"
+@app.post("/send_tweet/{tweet_id}")
+def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
+    query = {"id": tweet_id}
+    new_value = {"$set": {"label": int(radio_label)}}
+    db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
+        os.environ["MONGO_DATA_COLLECTION"]
+    ].update_one(query, new_value)
+    return RedirectResponse(url="/labeling", status_code=status.HTTP_302_FOUND)
 
 
 @app.post("/auth/token")
@@ -129,7 +126,6 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
         raise InvalidCredentialsException
     user = load_user(username)
     if not user or (not bcrypt.checkpw(password, user["password"])):
-        print("ROBA SBAGLIATA")
         return RedirectResponse(url="/login/error")
     else:
         access_token = manager.create_access_token(
@@ -142,7 +138,17 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
 
 @app.get("/labeling", response_class=HTMLResponse)
 def get_private_endpoint(request: Request, _=Depends(manager)):
-    return templates.TemplateResponse("tweet.html", {"request": request})
+    sample_tweet = db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
+        os.environ["MONGO_DATA_COLLECTION"]
+    ].find_one({"label": {"$exists": False}})
+    return templates.TemplateResponse(
+        "tweet.html",
+        {
+            "request": request,
+            "tweet_text": sample_tweet["full_text"],
+            "tweet_id": sample_tweet["id"],
+        },
+    )
 
 
 @app.get("/common_words")

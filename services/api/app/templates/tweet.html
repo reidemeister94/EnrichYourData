@@ -8,13 +8,13 @@
 </head>
 
 <body>
-    <form method="POST" action="/send_tweet">
+    <form method="POST" action="/send_tweet/{{tweet_id}}">
         <div class="title_section">
             <label for="tweet_text">Tweet Text</label>
         </div>
         <div class="tweet_div">
             <p>
-                "Ha ragione Forte : la carta costituzionale non impedirebbe l’obbligo di vaccinazione per tutti ⁦@ilgiornale⁩ https://t.co/Lmgjguea21"
+                {{tweet_text}}
             </p>
         </div>
         <div class="tweet_label">
