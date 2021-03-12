@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Tweet Labeling</title>
+    <link href="{{ url_for('static', path='/tweet_style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <form method="POST" action="/send_tweet">
+        <div class="title_section">
+            <label for="tweet_text">Tweet Text</label>
+        </div>
+        <div class="tweet_div">
+            <p>
+                "Ha ragione Forte : la carta costituzionale non impedirebbe l’obbligo di vaccinazione per tutti ⁦@ilgiornale⁩ https://t.co/Lmgjguea21"
+            </p>
+        </div>
+        <div class="tweet_label">
+            <table>
+                <tr>
+                    <th>No Vax</th>
+                    <th>Pro Vax</th>
+                    <th>Neutral</th>
+                    <th>Out of Context</th>
+                </tr>
+                <tr>
+                    <td><input type="radio" id="noVax" name="radioLabel" value="1" required>
+                    </td>
+                    <td><input type="radio" id="proVax" name="radioLabel" value="2">
+                    </td>
+                    <td><input type="radio" id="neutral" name="radioLabel" value="3">
+                    </td>
+                    <td><input type="radio" id="outOfContext" name="radioLabel" value="4">
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="submit_div">
+            <button type="submit" class="submit_button">Submit</button>
+        </div>
+    </form>
+</body>
+
+</html>

@@ -19,6 +19,7 @@ import random
 import string
 from pymongo import MongoClient
 import bcrypt
+from datetime import timedelta
 
 
 API_KEY_NAME = "access_token"
@@ -33,12 +34,27 @@ db_handler = DBHandler()
 SECRET = os.urandom(24).hex()
 # To obtain a suitable secret key you can run | import os; print()
 
-manager = LoginManager(SECRET, tokenUrl="/auth/login", use_cookie=True)
+manager = LoginManager(SECRET, tokenUrl="/auth/token", use_cookie=True)
 manager.cookie_name = "authc"
 
 # hashed = bcrypt.hashpw(password, bcrypt.gensalt())
 # if bcrypt.checkpw(password, hashed):
 #     print("It Matches!")
+
+
+class NotAuthenticatedException(Exception):
+    pass
+
+
+manager.not_authenticated_exception = NotAuthenticatedException
+
+# these two argument are mandatory
+def exc_handler(request, exc):
+    return RedirectResponse(url="/login")
+
+
+# You also have to add an exception handler to your app instance
+app.add_exception_handler(NotAuthenticatedException, exc_handler)
 
 
 async def get_api_key(api_key_header: str = Security(api_key_header)):
@@ -83,28 +99,37 @@ def load_user(username: str):
 
 
 @app.get("/login", response_class=HTMLResponse)
-async def read_item(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+async def login_page(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "error": False})
 
 
-@app.post("/auth/login")
+@app.post("/login/error", response_class=HTMLResponse)
+async def login_page_error(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request, "error": True})
+
+
+@app.post("/auth/token")
 def login(data: OAuth2PasswordRequestForm = Depends()):
     username = data.username
     password = str.encode(data.password)
+    if len(username) == 0 or len(password) == 0:
+        raise InvalidCredentialsException
     user = load_user(username)
-    if not user:
-        raise InvalidCredentialsException
-    elif not bcrypt.checkpw(password, user["password"]):
-        raise InvalidCredentialsException
-    access_token = manager.create_access_token(data={"sub": username})
-    resp = RedirectResponse(url="/private", status_code=status.HTTP_302_FOUND)
-    manager.set_cookie(resp, access_token)
-    return resp
+    if not user or (not bcrypt.checkpw(password, user["password"])):
+        print("ROBA SBAGLIATA")
+        return RedirectResponse(url="/login/error")
+    else:
+        access_token = manager.create_access_token(
+            data={"sub": username}, expires=timedelta(hours=12)
+        )
+        resp = RedirectResponse(url="/labeling", status_code=status.HTTP_302_FOUND)
+        manager.set_cookie(resp, access_token)
+        return resp
 
 
-@app.get("/private")
-def get_private_endpoint(_=Depends(manager)):
-    return "You are an authenticated user"
+@app.get("/labeling", response_class=HTMLResponse)
+def get_private_endpoint(request: Request, _=Depends(manager)):
+    return templates.TemplateResponse("tweet.html", {"request": request})
 
 
 @app.get("/common_words")
