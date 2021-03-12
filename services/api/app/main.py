@@ -109,13 +109,13 @@ async def login_page_error(request: Request):
 
 
 @app.post("/send_tweet")
-def update_tweet(radioLabel=Form(...), _=Depends(manager)):
-    radioLabel = int(radioLabel)
-    if radioLabel == 1:
+def update_tweet(radio_label=Form(...), _=Depends(manager)):
+    radio_label = int(radio_label)
+    if radio_label == 1:
         return "Pro Vax"
-    elif radioLabel == 2:
+    elif radio_label == 2:
         return "No Vax"
-    elif radioLabel == 3:
+    elif radio_label == 3:
         return "Neutral"
     else:
         return "Out of context"
