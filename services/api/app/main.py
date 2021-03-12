@@ -32,9 +32,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates/")
 db_handler = DBHandler()
 SECRET = os.urandom(24).hex()
+login_url = os.environ["LOGIN_URL"]
+auth_url = os.environ["AUTH_URL"]
 # To obtain a suitable secret key you can run | import os; print()
 
-manager = LoginManager(SECRET, tokenUrl="/auth/token", use_cookie=True)
+manager = LoginManager(SECRET, tokenUrl=auth_url, use_cookie=True)
 manager.cookie_name = "authc"
 
 # hashed = bcrypt.hashpw(password, bcrypt.gensalt())
@@ -50,7 +52,7 @@ manager.not_authenticated_exception = NotAuthenticatedException
 
 # these two argument are mandatory
 def exc_handler(request, exc):
-    return RedirectResponse(url="/login")
+    return RedirectResponse(url="/{}".format(login_url), status_code=status.HTTP_302_FOUND)
 
 
 # You also have to add an exception handler to your app instance
@@ -71,25 +73,25 @@ async def get_client_ip(request: Request):
         raise HTTPException(status_code=HTTP_403_FORBIDDEN, detail="Not Authorized")
 
 
-@app.get("/test")
-def read_root(request: Request):
-    collection = db_handler.MONGO_CLIENT["tweets"]["test"]
-    collection.insert_one(
-        {
-            "title": "test" + str(random.randint(1000000, 9999999)),
-            "text": "".join(
-                random.choices(
-                    string.ascii_uppercase + string.digits, k=random.randint(10, 50)
-                )
-            ),
-        }
-    )
-    return {"Your IP is": request.client.host}
+# @app.get("/test")
+# def read_root(request: Request):
+#     collection = db_handler.MONGO_CLIENT["tweets"]["test"]
+#     collection.insert_one(
+#         {
+#             "title": "test" + str(random.randint(1000000, 9999999)),
+#             "text": "".join(
+#                 random.choices(
+#                     string.ascii_uppercase + string.digits, k=random.randint(10, 50)
+#                 )
+#             ),
+#         }
+#     )
+#     return {"Your IP is": request.client.host}
 
 
-@app.get("/")
-def read_root(api_key: APIKey = Depends(get_api_key), client_ip=Depends(get_client_ip)):
-    return {"Hi": API_KEYS[api_key], "Your IP": client_ip}
+# @app.get("/")
+# def read_root(api_key: APIKey = Depends(get_api_key), client_ip=Depends(get_client_ip)):
+#     return {"Hi": API_KEYS[api_key], "Your IP": client_ip}
 
 
 @manager.user_loader
@@ -98,14 +100,18 @@ def load_user(username: str):
     return user
 
 
-@app.get("/login", response_class=HTMLResponse)
+@app.get("/{}".format(login_url), response_class=HTMLResponse)
 async def login_page(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "error": False})
+    return templates.TemplateResponse(
+        "login.html", {"request": request, "auth": auth_url, "error": False}
+    )
 
 
-@app.post("/login/error", response_class=HTMLResponse)
+@app.post("/{}/error".format(login_url), response_class=HTMLResponse)
 async def login_page_error(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request, "error": True})
+    return templates.TemplateResponse(
+        "login.html", {"request": request, "auth": auth_url, "error": False}
+    )
 
 
 @app.post("/send_tweet/{tweet_id}")
@@ -118,7 +124,7 @@ def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
     return RedirectResponse(url="/labeling", status_code=status.HTTP_302_FOUND)
 
 
-@app.post("/auth/token")
+@app.post(auth_url)
 def login(data: OAuth2PasswordRequestForm = Depends()):
     username = data.username
     password = str.encode(data.password)
@@ -126,7 +132,7 @@ def login(data: OAuth2PasswordRequestForm = Depends()):
         raise InvalidCredentialsException
     user = load_user(username)
     if not user or (not bcrypt.checkpw(password, user["password"])):
-        return RedirectResponse(url="/login/error")
+        return RedirectResponse(url="/{}/error".format(login_url))
     else:
         access_token = manager.create_access_token(
             data={"sub": username}, expires=timedelta(hours=12)
