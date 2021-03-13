@@ -102,6 +102,7 @@ def load_user(username: str):
     return user
 
 
+### login_polimi
 @app.get("/{}".format(login_url), response_class=HTMLResponse)
 async def login_page(request: Request):
     return templates.TemplateResponse(
@@ -116,6 +117,7 @@ async def login_page_error(request: Request):
     )
 
 
+# send_tweet_polimi
 @app.post(send_tweet_url + "/{tweet_id}")
 def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
     query = {"id": tweet_id}
@@ -126,6 +128,7 @@ def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
     return RedirectResponse(url=labeling_url, status_code=status.HTTP_302_FOUND)
 
 
+# auth_polimi
 @app.post(auth_url)
 def login(username=Form(...), password=Form(...)):
     password = str.encode(password)
@@ -141,6 +144,7 @@ def login(username=Form(...), password=Form(...)):
         return resp
 
 
+# labeling_polimi
 @app.get(labeling_url, response_class=HTMLResponse)
 def get_private_endpoint(request: Request, _=Depends(manager)):
     sample_tweet = db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][

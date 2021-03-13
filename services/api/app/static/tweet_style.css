@@ -31,12 +31,19 @@ td {
 }
 
 .submit_button {
-    height: 3em;
-    width: 25%;
+    height: 2.5em;
+    width: 20%;
     border-radius: 20px;
     font-size: 22px;
     font-weight: 600;
     cursor: pointer;
+    background-color: #bdc3c9;
+    color: #000;
+}
+
+.submit_button:hover {
+    background-color: #a0a5aa;
+    color: #000;
 }
 
 input[type=radio] {
