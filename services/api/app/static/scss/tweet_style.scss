@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css?family=Rubik:700&display=swap');
+html {
+    width: 60%;
+    margin: auto;
+    margin-top: 5%;
+    font-size: 20px;
+}
+
+.tweet_div {
+    color: #646369;
+    margin-bottom: 5%;
+    margin-top: 5%;
+    font-size: 22px;
+}
+
+.title_section {
+    color: #000;
+    font-size: 30px;
+    font-weight: 700;
+}
+
+th,
+td {
+    padding: 10px 30px 0 0;
+    text-align: center;
+}
+
+.table_div {
+    float: left;
+}
+
+.submit_div {
+    float: left;
+    margin-left: 10%;
+}
+
+
+/*
+.submit_button {
+    height: 2.5em;
+    width: 20%;
+    border-radius: 20px;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #bdc3c9;
+    color: #000;
+}
+
+.submit_button:hover {
+    background-color: #a0a5aa;
+    color: #000;
+}
+*/
+
+input[type=radio] {
+    border: 10px;
+    width: 100%;
+    height: 4em;
+}
+
+$bg: #fff;
+$text: #ffff;
+$light-pink: #5c6270;
+$pink: #3a4250;
+$dark-pink: #2e3544;
+$pink-border: #001233;
+$pink-shadow: #979dac;
+* {
+    box-sizing: border-box;
+    &::before,
+    &::after {
+        box-sizing: border-box;
+    }
+}
+
+body {
+    font-family: 'Rubik', sans-serif;
+    font-size: 1rem;
+    line-height: 1.5;
+    background: $bg;
+}
+
+button {
+    cursor: pointer;
+    outline: none;
+    border: 0;
+    text-decoration: none;
+    font-size: inherit;
+    font-family: inherit;
+    &.learn-more {
+        font-weight: 600;
+        color: $text;
+        text-transform: uppercase;
+        padding: 1.25em 2em;
+        background: $light-pink;
+        border: 2px solid $pink-border;
+        border-radius: 0.75em;
+        transform-style: preserve-3d;
+        transition: transform 150ms cubic-bezier(0, 0, 0.58, 1), background 150ms cubic-bezier(0, 0, 0.58, 1);
+        &::before {
+            position: absolute;
+            content: '';
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: $dark-pink;
+            border-radius: inherit;
+            box-shadow: 0 0 0 2px $pink-border, 0 0.625em 0 0 $pink-shadow;
+            transform: translate3d(0, 0.75em, -1em);
+            transition: transform 150ms cubic-bezier(0, 0, 0.58, 1), box-shadow 150ms cubic-bezier(0, 0, 0.58, 1);
+        }
+        &:hover {
+            background: $pink;
+            transform: translate(0, 0.25em);
+            &::before {
+                box-shadow: 0 0 0 2px $pink-border, 0 0.5em 0 0 $pink-shadow;
+                transform: translate3d(0, 0.5em, -1em);
+            }
+        }
+        &:active {
+            background: $pink;
+            transform: translate(0em, 0.75em);
+            &::before {
+                box-shadow: 0 0 0 2px $pink-border, 0 0 $pink-shadow;
+                transform: translate3d(0, 0, -1em);
+            }
+        }
+    }
+}

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Tweet Labeling</title>
-    <link href="{{ url_for('static', path='/tweet_style.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', path='/css/tweet_style.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -18,27 +18,29 @@
             </p>
         </div>
         <div class="tweet_label">
-            <table>
-                <tr>
-                    <th>Pro Vax</th>
-                    <th>No Vax</th>
-                    <th>Neutral</th>
-                    <th>Out of Context</th>
-                </tr>
-                <tr>
-                    <td><input type="radio" id="proVax" name="radio_label" value="1" required>
-                    </td>
-                    <td><input type="radio" id="noVax" name="radio_label" value="2">
-                    </td>
-                    <td><input type="radio" id="neutral" name="radio_label" value="3">
-                    </td>
-                    <td><input type="radio" id="outOfContext" name="radio_label" value="4">
-                    </td>
-                </tr>
-            </table>
-        </div>
-        <div class="submit_div">
-            <button type="submit" class="submit_button">Submit</button>
+            <div class="table_div">
+                <table class="table_label">
+                    <tr>
+                        <th>Pro Vax</th>
+                        <th>No Vax</th>
+                        <th>Neutral</th>
+                        <th>Out of Context</th>
+                    </tr>
+                    <tr>
+                        <td><input type="radio" id="proVax" name="radio_label" value="1" required>
+                        </td>
+                        <td><input type="radio" id="noVax" name="radio_label" value="2">
+                        </td>
+                        <td><input type="radio" id="neutral" name="radio_label" value="3">
+                        </td>
+                        <td><input type="radio" id="outOfContext" name="radio_label" value="4">
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="submit_div">
+                <button class="learn-more">Submit</button>
+            </div>
         </div>
     </form>
 </body>

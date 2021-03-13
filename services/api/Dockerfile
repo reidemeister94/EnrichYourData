@@ -16,6 +16,11 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
     ln -s /opt/poetry/bin/poetry && \
     poetry config virtualenvs.create false
 
+# # Install Node
+# RUN curl -fsSL https://deb.nodesource.com/setup_15.x | bash - \
+#     && apt-get install -y nodejs
+# RUN npm install -g sass
+
 # Copy using poetry.lock* in case it doesn't exist yet
 COPY ./app/pyproject.toml ./app/poetry.lock* $WORKDIR/
 
