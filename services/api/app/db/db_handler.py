@@ -156,7 +156,6 @@ class DBHandler:
         logger.setLevel(logging.DEBUG)
         # create console handler and set level to debug
         log_path = "db/log/db_handler.log"
-        print("DOVE SONO: {}".format(os.listdir()))
         if not os.path.isdir("db/log/"):
             os.mkdir("db/log/")
         fh = logging.FileHandler(log_path)
