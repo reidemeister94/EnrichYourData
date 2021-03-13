@@ -34,6 +34,10 @@ td {
   margin-left: 10%;
 }
 
+.radio {
+  cursor: pointer;
+}
+
 /*
 .submit_button {
     height: 2.5em;
