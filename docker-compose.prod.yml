@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  web:
-    container_name: api
+  api:
+    container_name: eyd_api
     build:
        context: ./services/api
     env_file:
       - api.env
-    command: gunicorn main:app --bind 0.0.0.0:5000 -w 4 -k uvicorn.workers.UvicornWorker
+    command: uvicorn main:app --host 0.0.0.0 --port 5000
     expose:
       - 5000
     labels:
@@ -15,6 +15,8 @@ services:
       - "traefik.http.routers.fastapi.rule=Host(`disinformationpolimi.me`)"
       - "traefik.http.routers.fastapi.tls=true"
       - "traefik.http.routers.fastapi.tls.certresolver=letsencrypt"
+    volumes:
+      - "./services/api/app:/home/app/api"
   traefik:
     container_name: traefik
     image: traefik
@@ -24,3 +26,14 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./services/traefik/traefik.prod.toml:/etc/traefik/traefik.toml"
+  database:
+    image: mongo
+    container_name: eyd_db
+    env_file:
+      - db.env
+    ports:
+      - "27030:27017"
+    volumes:
+      - "./services/db/initdb.d/:/docker-entrypoint-initdb.d"
+      - "./services/db/mongo-volume:/data/db"
+      - "./services/db/log:/var/log/mongodb"
