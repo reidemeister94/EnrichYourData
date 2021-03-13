@@ -1,4 +1,5 @@
 import collections
+from posix import listdir
 import pymongo
 from pymongo import MongoClient
 from pymongo.errors import CursorNotFound, ServerSelectionTimeoutError
@@ -14,7 +15,6 @@ from dateutil.relativedelta import relativedelta
 import re
 import dateutil.parser as parser
 from datetime import timezone
-import bcrypt
 from hashlib import sha256
 
 
@@ -76,11 +76,7 @@ class DBHandler:
                             "count": {"$sum": 1},
                         }
                     },
-                    {
-                        "$sort": {
-                            "_id": pymongo.ASCENDING,
-                        }
-                    },
+                    {"$sort": {"_id": pymongo.ASCENDING,}},
                 ]
             )
 
@@ -159,9 +155,10 @@ class DBHandler:
         logger = logging.getLogger("DBHandler")
         logger.setLevel(logging.DEBUG)
         # create console handler and set level to debug
-        log_path = "log/db_handler.log"
-        if not os.path.isdir("log/"):
-            os.mkdir("log/")
+        log_path = "db/log/db_handler.log"
+        print("DOVE SONO: {}".format(os.listdir()))
+        if not os.path.isdir("db/log/"):
+            os.mkdir("db/log/")
         fh = logging.FileHandler(log_path)
         fh.setLevel(logging.DEBUG)
         # create formatter
