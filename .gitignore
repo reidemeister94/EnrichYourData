@@ -9,4 +9,7 @@ server/.DS_Store
 
 *.env
 
-services/db/mongo-volume/
+services/db/mongo-volume/*
+services/db/log/*
+services/traefik/log/*
+services/api/app/db/log/*
