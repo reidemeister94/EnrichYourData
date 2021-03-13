@@ -34,6 +34,8 @@ db_handler = DBHandler()
 SECRET = os.urandom(24).hex()
 login_url = os.environ["LOGIN_URL"]
 auth_url = os.environ["AUTH_URL"]
+labeling_url = os.environ["LABEL_URL"]
+send_tweet_url = os.environ["SEND_TWEET_URL"]
 # To obtain a suitable secret key you can run | import os; print()
 
 manager = LoginManager(SECRET, tokenUrl=auth_url, use_cookie=True)
@@ -114,14 +116,14 @@ async def login_page_error(request: Request):
     )
 
 
-@app.post("/send_tweet/{tweet_id}")
+@app.post(send_tweet_url + "/{tweet_id}")
 def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
     query = {"id": tweet_id}
     new_value = {"$set": {"label": int(radio_label)}}
     db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
         os.environ["MONGO_DATA_COLLECTION"]
     ].update_one(query, new_value)
-    return RedirectResponse(url="/labeling", status_code=status.HTTP_302_FOUND)
+    return RedirectResponse(url=labeling_url, status_code=status.HTTP_302_FOUND)
 
 
 @app.post(auth_url)
@@ -134,12 +136,12 @@ def login(username=Form(...), password=Form(...)):
         access_token = manager.create_access_token(
             data={"sub": username}, expires=timedelta(hours=12)
         )
-        resp = RedirectResponse(url="/labeling", status_code=status.HTTP_302_FOUND)
+        resp = RedirectResponse(url=labeling_url, status_code=status.HTTP_302_FOUND)
         manager.set_cookie(resp, access_token)
         return resp
 
 
-@app.get("/labeling", response_class=HTMLResponse)
+@app.get(labeling_url, response_class=HTMLResponse)
 def get_private_endpoint(request: Request, _=Depends(manager)):
     sample_tweet = db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
         os.environ["MONGO_DATA_COLLECTION"]
@@ -150,6 +152,7 @@ def get_private_endpoint(request: Request, _=Depends(manager)):
             "request": request,
             "tweet_text": sample_tweet["full_text"],
             "tweet_id": sample_tweet["id"],
+            "send_tweet_url": send_tweet_url,
         },
     )
 
