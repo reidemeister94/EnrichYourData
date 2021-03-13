@@ -14,6 +14,8 @@ from dateutil.relativedelta import relativedelta
 import re
 import dateutil.parser as parser
 from datetime import timezone
+import bcrypt
+from hashlib import sha256
 
 
 class DBHandler:
@@ -74,7 +76,11 @@ class DBHandler:
                             "count": {"$sum": 1},
                         }
                     },
-                    {"$sort": {"_id": pymongo.ASCENDING,}},
+                    {
+                        "$sort": {
+                            "_id": pymongo.ASCENDING,
+                        }
+                    },
                 ]
             )
 
@@ -141,6 +147,7 @@ class DBHandler:
 
     def check_username(self, username):
         credentials_coll = self.MONGO_CLIENT[self.db_users][self.collection_users]
+        username = sha256(str.encode(username)).hexdigest()
         user_db = credentials_coll.find_one({"username": username})
         if user_db is None:
             return None

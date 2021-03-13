@@ -2,7 +2,7 @@ from typing import Optional
 import os
 import ast
 import json
-from fastapi import Security, Depends, FastAPI, HTTPException, Form, status
+from fastapi import Security, Depends, FastAPI, HTTPException, Form, status, Response
 from fastapi.security.api_key import APIKeyQuery, APIKeyCookie, APIKeyHeader, APIKey
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_login import LoginManager  # Loginmanager Class
@@ -10,7 +10,7 @@ from fastapi_login.exceptions import InvalidCredentialsException  # Exception cl
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.requests import Request
-from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse, PlainTextResponse
 from fastapi.encoders import jsonable_encoder
 from starlette.status import HTTP_403_FORBIDDEN
 from db.db_handler import DBHandler
@@ -110,7 +110,7 @@ async def login_page(request: Request):
 @app.post("/{}/error".format(login_url), response_class=HTMLResponse)
 async def login_page_error(request: Request):
     return templates.TemplateResponse(
-        "login.html", {"request": request, "auth": auth_url, "error": False}
+        "login.html", {"request": request, "auth": auth_url, "error": True}
     )
 
 
@@ -125,11 +125,8 @@ def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
 
 
 @app.post(auth_url)
-def login(data: OAuth2PasswordRequestForm = Depends()):
-    username = data.username
-    password = str.encode(data.password)
-    if len(username) == 0 or len(password) == 0:
-        raise InvalidCredentialsException
+def login(username=Form(...), password=Form(...)):
+    password = str.encode(password)
     user = load_user(username)
     if not user or (not bcrypt.checkpw(password, user["password"])):
         return RedirectResponse(url="/{}/error".format(login_url))
