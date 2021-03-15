@@ -27,7 +27,7 @@ API_KEYS = ast.literal_eval(os.environ["API_KEYS"])
 ALLOWED_IP_LIST = os.environ["ALLOWED_IPS"].split(",")
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=False)
 
-app = FastAPI()
+app = FastAPI(docs_url=None, redoc_url=None)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates/")
 db_handler = DBHandler()
@@ -158,23 +158,7 @@ def get_private_endpoint(request: Request, _=Depends(manager)):
     # sample_tweet = db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
     #     os.environ["MONGO_DATA_COLLECTION"]
     # ].find_one({"label": {"$exists": False}, "retweeted_status": {"$exists": False}})
-    sample_tweet = (
-        db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
-            os.environ["MONGO_DATA_COLLECTION"]
-        ]
-        .aggregate(
-            [
-                {
-                    "$match": {
-                        "label": {"$exists": False},
-                        "retweeted_status": {"$exists": False},
-                    }
-                },
-                {"$sample": {"size": 1}},
-            ]
-        )
-        .next()
-    )
+    sample_tweet = db_handler.get_sample_tweet()
     return templates.TemplateResponse(
         "tweet.html",
         {

@@ -141,6 +141,35 @@ class DBHandler:
             )
             return None
 
+    def get_sample_tweet(self):
+        try:
+            sample_tweet = (
+                self.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
+                    os.environ["MONGO_DATA_COLLECTION"]
+                ]
+                .aggregate(
+                    [
+                        {
+                            "$match": {
+                                "label": {"$exists": False},
+                                "retweeted_status": {"$exists": False},
+                                "lang": "it",
+                            }
+                        },
+                        {"$sample": {"size": 1}},
+                    ]
+                )
+                .next()
+            )
+            return sample_tweet
+        except Exception as e:
+            exc_type, _, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            self.LOGGER.error(
+                "{}, {}, {}, {}".format(exc_type, fname, exc_tb.tb_lineno, str(e))
+            )
+            return {"id": 0, "full_text": ""}
+
     def check_username(self, username):
         credentials_coll = self.MONGO_CLIENT[self.db_users][self.collection_users]
         username = sha256(str.encode(username)).hexdigest()
