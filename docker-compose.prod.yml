@@ -22,7 +22,7 @@ services:
       - "./services/api/app:/home/app/api"
   traefik:
     container_name: traefik
-    image: traefik
+    image: traefik:latest
     restart: always
     ports:
       - "80:80"
