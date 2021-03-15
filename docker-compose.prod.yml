@@ -26,6 +26,7 @@ services:
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
       - "./services/traefik/traefik.prod.toml:/etc/traefik/traefik.toml"
+      - "./services/traefik/acme.json:/acme.json"
   database:
     image: mongo
     container_name: eyd_db
