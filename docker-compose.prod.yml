@@ -3,6 +3,11 @@ version: '3.8'
 services:
   api:
     container_name: eyd_api
+    depends_on:
+      database:
+        condition: service_healthy
+      traefik:
+        condition: service_healthy
     build:
        context: ./services/api
     env_file:
@@ -20,6 +25,7 @@ services:
   traefik:
     container_name: traefik
     image: traefik
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -30,6 +36,7 @@ services:
   database:
     image: mongo
     container_name: eyd_db
+    restart: always
     env_file:
       - db.env
     ports:
