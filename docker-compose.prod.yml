@@ -4,10 +4,8 @@ services:
   api:
     container_name: eyd_api
     depends_on:
-      database:
-        condition: service_healthy
-      traefik:
-        condition: service_healthy
+      - database
+      - traefik
     build:
        context: ./services/api
     env_file:
