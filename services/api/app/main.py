@@ -127,9 +127,11 @@ async def redirect_login_page_error(request: Request):
 
 # send_tweet_polimi
 @app.post(send_tweet_url + "/{tweet_id}")
-def update_tweet(tweet_id: int, radio_label=Form(...), _=Depends(manager)):
+def update_tweet(tweet_id: int, radio_label=Form(...), user_creds=Depends(manager)):
+    print("CREDS: {}".format(user_creds))
     query = {"id": tweet_id}
     new_value = {"$set": {"label": int(radio_label)}}
+    # new_value = {"$push": {"label": {'user':user, 'score':score}}, "$inc":{"count":1}}
     db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
         os.environ["MONGO_DATA_COLLECTION"]
     ].update_one(query, new_value)
