@@ -76,7 +76,11 @@ class DBHandler:
                             "count": {"$sum": 1},
                         }
                     },
-                    {"$sort": {"_id": pymongo.ASCENDING,}},
+                    {
+                        "$sort": {
+                            "_id": pymongo.ASCENDING,
+                        }
+                    },
                 ]
             )
 
@@ -141,7 +145,7 @@ class DBHandler:
             )
             return None
 
-    def get_sample_tweet(self):
+    def get_sample_tweet(self, user):
         try:
             sample_tweet = (
                 self.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
@@ -151,9 +155,9 @@ class DBHandler:
                     [
                         {
                             "$match": {
-                                "label": {"$exists": False},
-                                "retweeted_status": {"$exists": False},
-                                "lang": "it",
+                                "label_final": {"$exists": False},
+                                "labels.user": {"$ne": user},
+                                "count": {"$not": {"$gt": 2}, "$gt": 0},
                             }
                         },
                         {"$sample": {"size": 1}},
@@ -162,13 +166,54 @@ class DBHandler:
                 .next()
             )
             return sample_tweet
-        except Exception as e:
-            exc_type, _, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            self.LOGGER.error(
-                "{}, {}, {}, {}".format(exc_type, fname, exc_tb.tb_lineno, str(e))
+        except:
+            sample_tweet = (
+                self.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
+                    os.environ["MONGO_DATA_COLLECTION"]
+                ]
+                .aggregate(
+                    [
+                        {
+                            "$match": {
+                                "label_final": {"$exists": False},
+                                "labels.user": {"$ne": user},
+                                "count": {"$not": {"$gt": 2}},
+                            }
+                        },
+                        {"$sample": {"size": 1}},
+                    ]
+                )
+                .next()
             )
-            return {"id": 0, "full_text": ""}
+            return sample_tweet
+
+    #     try:
+    #         sample_tweet = (
+    #             self.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
+    #                 os.environ["MONGO_DATA_COLLECTION"]
+    #             ]
+    #             .aggregate(
+    #                 [
+    #                     {
+    #                         "$match": {
+    #                             "label": {"$exists": False},
+    #                             # "retweeted_status": {"$exists": False},
+    #                             "lang": "it",
+    #                         }
+    #                     },
+    #                     {"$sample": {"size": 1}},
+    #                 ]
+    #             )
+    #             .next()
+    #         )
+    #         return sample_tweet
+    #     except Exception as e:
+    #         exc_type, _, exc_tb = sys.exc_info()
+    #         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    #         self.LOGGER.error(
+    #             "{}, {}, {}, {}".format(exc_type, fname, exc_tb.tb_lineno, str(e))
+    #         )
+    #         return {"id": 0, "full_text": ""}
 
     def check_username(self, username):
         credentials_coll = self.MONGO_CLIENT[self.db_users][self.collection_users]

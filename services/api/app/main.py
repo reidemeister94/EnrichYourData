@@ -21,7 +21,7 @@ import string
 from pymongo import MongoClient
 import bcrypt
 from datetime import timedelta
-
+import jwt
 
 API_KEY_NAME = "access_token"
 API_KEYS = ast.literal_eval(os.environ["API_KEYS"])
@@ -127,20 +127,30 @@ async def redirect_login_page_error(request: Request):
 
 # send_tweet_polimi
 @app.post(send_tweet_url + "/{tweet_id}")
-def update_tweet(tweet_id: int, radio_label=Form(...), user_creds=Depends(manager)):
-    print("CREDS: {}".format(user_creds))
-    query = {"id": tweet_id}
-    new_value = {"$set": {"label": int(radio_label)}}
-    # new_value = {"$push": {"label": {'user':user, 'score':score}}, "$inc":{"count":1}}
-    db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
-        os.environ["MONGO_DATA_COLLECTION"]
-    ].update_one(query, new_value)
-    return RedirectResponse(url=labeling_url, status_code=status.HTTP_302_FOUND)
+async def update_tweet(
+    request: Request, tweet_id: int, radio_label=Form(...), user_creds=Depends(manager)
+):
+    username = jwt.decode(
+        request.cookies.get("authc"), options={"verify_signature": False}
+    ).get("sub", None)
+    if username is None:
+        raise InvalidCredentialsException
+    else:
+        query = {"id": tweet_id}
+        # new_value = {"$set": {"label": int(radio_label)}}
+        new_value = {
+            "$push": {"labels": {"user": username, "label": int(radio_label)}},
+            "$inc": {"count": 1},
+        }
+        db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
+            os.environ["MONGO_DATA_COLLECTION"]
+        ].update_one(query, new_value)
+        return RedirectResponse(url=labeling_url, status_code=status.HTTP_302_FOUND)
 
 
 # auth_polimi
 @app.post(auth_url)
-def login(username=Form(...), password=Form(...)):
+async def login(username=Form(...), password=Form(...)):
     username = username.lower()
     password = str.encode(password)
     user = load_user(username)
@@ -157,20 +167,26 @@ def login(username=Form(...), password=Form(...)):
 
 # labeling_polimi
 @app.get(labeling_url, response_class=HTMLResponse)
-def get_private_endpoint(request: Request, _=Depends(manager)):
+async def get_tweet_page(request: Request, _=Depends(manager)):
     # sample_tweet = db_handler.MONGO_CLIENT[os.environ["MONGO_DATA_DB"]][
     #     os.environ["MONGO_DATA_COLLECTION"]
     # ].find_one({"label": {"$exists": False}, "retweeted_status": {"$exists": False}})
-    sample_tweet = db_handler.get_sample_tweet()
-    return templates.TemplateResponse(
-        "tweet.html",
-        {
-            "request": request,
-            "tweet_text": sample_tweet["full_text"],
-            "tweet_id": sample_tweet["id"],
-            "send_tweet_url": send_tweet_url,
-        },
-    )
+    username = jwt.decode(
+        request.cookies.get("authc"), options={"verify_signature": False}
+    ).get("sub", None)
+    if username is None:
+        raise InvalidCredentialsException
+    else:
+        sample_tweet = db_handler.get_sample_tweet(username)
+        return templates.TemplateResponse(
+            "tweet.html",
+            {
+                "request": request,
+                "tweet_text": sample_tweet["full_text"],
+                "tweet_id": sample_tweet["id"],
+                "send_tweet_url": send_tweet_url,
+            },
+        )
 
 
 @app.get("/common_words")
