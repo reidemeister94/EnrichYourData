@@ -13,9 +13,9 @@ services:
     labels:
       - "traefik.enable=true"
       ## USE THIS TO WORK ONLY IN LOCAL
-      ## - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)" 
+      - "traefik.http.routers.fastapi.rule=Host(`fastapi.localhost`)" 
       ## USE THIS TO WORK REMOTELY
-      - "traefik.http.routers.fastapi.rule=Host(`134.122.102.92`)"
+      #- "traefik.http.routers.fastapi.rule=Host(`134.122.102.92`)"
     volumes:
       - "./services/api/app:/home/app/api"
   traefik:
