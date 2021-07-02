@@ -18,3 +18,7 @@ services/traefik/acme.json
 services/dataprocessing/.cache/
 
 services/dataprocessing/.keras/
+
+services/dataprocessing/core_modules/topic_extraction/lda_checkpoint/
+
+services/dataprocessing/core_modules/topic_extraction/lda_checkpoint_backup/
