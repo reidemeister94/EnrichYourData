@@ -14,3 +14,7 @@ services/db/log/*
 services/traefik/log/*
 services/api/app/db/log/*
 services/traefik/acme.json
+
+services/dataprocessing/.cache/
+
+services/dataprocessing/.keras/

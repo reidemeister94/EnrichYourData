@@ -18,6 +18,13 @@ services:
       #- "traefik.http.routers.fastapi.rule=Host(`134.122.102.92`)"
     volumes:
       - "./services/api/app:/home/app/api"
+  dataprocessing:
+    container_name: eyd_dataprocessing
+    build:
+      context: ./services/dataprocessing
+    command: python /home/dataprocessing/news_post_process.py
+    volumes:
+      - "./services/dataprocessing:/home/dataprocessing"
   traefik:
     image: traefik
     ports:

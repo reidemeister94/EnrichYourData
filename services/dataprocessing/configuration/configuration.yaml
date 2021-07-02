@@ -1,0 +1,27 @@
+collections_lang:
+- it
+- en
+- fr
+- de
+- nl
+- es
+mongourl: mongodb://localhost:27017
+most_frequent_word_extraction:
+  days_range: 30
+  last_ts_de: 1612051200
+  last_ts_en: 1612051200
+  last_ts_es: 1612051200
+  last_ts_fr: 1612051200
+  last_ts_it: 1612051200
+  last_ts_nl: 1612051200
+news_analyzer:
+  bert_model_path: core_modules/news_analyzer/bert_models/uncased_L-4_H-512_A-8
+topic_extraction:
+  batch_size: 3000
+  lda_models_path: core_modules/topic_extraction/lda_checkpoint/
+  model_params:
+    alpha: 0.01
+    beta: 0.91
+    passes: 20
+    num_topics: 3
+    num_words: 10
